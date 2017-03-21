@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import org.sqlite.database.DatabaseErrorHandler;
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteDatabaseCorruptException;
 import org.sqlite.database.sqlite.SQLiteOpenHelper;
@@ -17,14 +16,6 @@ import org.sqlite.database.sqlite.SQLiteStatement;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
-
-class DoNotDeleteErrorHandler implements DatabaseErrorHandler {
-	private static final String TAG = "DoNotDeleteErrorHandler";
-
-	public void onCorruption(SQLiteDatabase dbObj) {
-		Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
-	}
-}
 
 public class MainActivity extends AppCompatActivity {
 
@@ -397,9 +388,20 @@ public class MainActivity extends AppCompatActivity {
 		Log.e(TAG, "enabled = " + c.getInt(0));
 		c.close();
 		db.enableLoadExtension(true);
+		// load spell fix
 		c = db.rawQuery("select load_extension('libspellfix')", null);
 		c.moveToFirst();
 		Log.e(TAG, "spellfix loaded, result = " + c.getInt(0));
+		c.close();
+		// load offsets_rank
+		c = db.rawQuery("select load_extension('liboffsets_rank')", null);
+		c.moveToFirst();
+		Log.e(TAG, "offsets_rank loaded, result = " + c.getInt(0));
+		c.close();
+		// load okapi_bm25
+		c = db.rawQuery("select load_extension('libokapi_bm25')", null);
+		c.moveToFirst();
+		Log.e(TAG, "okapi_bm25 loaded, reusult = " + c.getInt(0));
 		c.close();
 		// Check spell fix
 		db.execSQL("create virtual table spellfix using spellfix1");
