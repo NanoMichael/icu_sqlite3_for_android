@@ -53,9 +53,17 @@ $(info LOCAL_C_INCLUDES = $(LOCAL_C_INCLUDES))
 LOCAL_MODULE:= libsqliteX
 LOCAL_LDLIBS += -ldl -llog
 
-LOCAL_LIB := $(LOCAL_PATH)/icu_lib
+# Local lib
+$(info TARGET_ARCH = $(TARGET_ARCH))
 
-# IMPORTANT -licudata must placed after -licuuc
+ifeq ($(TARGET_ARCH), arm)
+	LOCAL_LIB := $(LOCAL_PATH)/icu_lib_armv7
+else
+	LOCAL_LIB := $(LOCAL_PATH)/icu_lib_arm64
+endif
+
+
+# IMPORTANT -licudata must be placed after -licuuc
 LOCAL_LDLIBS += -L$(LOCAL_LIB) -licui18n -licuio -licutu -licuuc -licudata
 
 include $(BUILD_SHARED_LIBRARY)
