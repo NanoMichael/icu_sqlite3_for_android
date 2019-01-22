@@ -7,7 +7,7 @@ include $(CLEAR_VARS)
 
 
 # Enable SQLite extensions.
-LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS5 
+LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS5
 LOCAL_CFLAGS += -DSQLITE_ENABLE_RTREE
 LOCAL_CFLAGS += -DSQLITE_ENABLE_JSON1
 LOCAL_CFLAGS += -DSQLITE_ENABLE_FTS3
@@ -32,17 +32,17 @@ LOCAL_CPPFLAGS += -Wno-conversion-null
 
 
 ifeq ($(TARGET_ARCH), arm)
-	LOCAL_CFLAGS += -DPACKED="__attribute__ ((packed))"
+    LOCAL_CFLAGS += -DPACKED="__attribute__ ((packed))"
 else
-	LOCAL_CFLAGS += -DPACKED=""
+    LOCAL_CFLAGS += -DPACKED=""
 endif
 
 LOCAL_SRC_FILES:=                         \
-	android_database_SQLiteCommon.cpp     \
-	android_database_SQLiteConnection.cpp \
-	android_database_SQLiteGlobal.cpp     \
-	android_database_SQLiteDebug.cpp      \
-	JNIHelp.cpp JniConstants.cpp
+    android_database_SQLiteCommon.cpp     \
+    android_database_SQLiteConnection.cpp \
+    android_database_SQLiteGlobal.cpp     \
+    android_database_SQLiteDebug.cpp      \
+    JNIHelp.cpp JniConstants.cpp
 
 LOCAL_SRC_FILES += sqlite3.c
 
@@ -57,9 +57,9 @@ LOCAL_LDLIBS += -ldl -llog
 $(info TARGET_ARCH = $(TARGET_ARCH))
 
 ifeq ($(TARGET_ARCH), arm)
-	LOCAL_LIB := $(LOCAL_PATH)/icu_lib_armv7
+    LOCAL_LIB := $(LOCAL_PATH)/icu_lib_armv7
 else
-	LOCAL_LIB := $(LOCAL_PATH)/icu_lib_arm64
+    LOCAL_LIB := $(LOCAL_PATH)/icu_lib_arm64
 endif
 
 

@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 /*
-** Modified to support SQLite extensions by the SQLite developers: 
-** sqlite-dev@sqlite.org.
-*/
+ ** Modified to support SQLite extensions by the SQLite developers:
+ ** sqlite-dev@sqlite.org.
+ */
 
 package org.sqlite.database;
 
-import java.io.File;
-import java.util.List;
+import android.util.Log;
+import android.util.Pair;
 
 import org.sqlite.database.sqlite.SQLiteDatabase;
 import org.sqlite.database.sqlite.SQLiteException;
-import android.util.Log;
-import android.util.Pair;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Default class used to define the actions to take when the database corruption is reported
@@ -35,10 +36,10 @@ import android.util.Pair;
  * An application can specify an implementation of {@link DatabaseErrorHandler} on the
  * following:
  * <ul>
- *   <li>{@link SQLiteDatabase#openOrCreateDatabase(String,
- *      org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory, DatabaseErrorHandler)}</li>
- *   <li>{@link SQLiteDatabase#openDatabase(String,
- *      org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory, int, DatabaseErrorHandler)}</li>
+ * <li>{@link SQLiteDatabase#openOrCreateDatabase(String,
+ * org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory, DatabaseErrorHandler)}</li>
+ * <li>{@link SQLiteDatabase#openDatabase(String,
+ * org.sqlite.database.sqlite.SQLiteDatabase.CursorFactory, int, DatabaseErrorHandler)}</li>
  * </ul>
  * The specified {@link DatabaseErrorHandler} is used to handle database corruption errors, if they
  * occur.
@@ -52,15 +53,15 @@ public final class DefaultDatabaseErrorHandler implements DatabaseErrorHandler {
 
     /**
      * defines the default method to be invoked when database corruption is detected.
+     *
      * @param dbObj the {@link SQLiteDatabase} object representing the database on which corruption
-     * is detected.
+     *              is detected.
      */
     public void onCorruption(SQLiteDatabase dbObj) {
         Log.e(TAG, "Corruption reported by sqlite on database: " + dbObj.getPath());
 
-	// If this is a SEE build, do not delete any database files.
-	//
-	if( SQLiteDatabase.hasCodec() ) return;
+        // If this is a SEE build, do not delete any database files.
+        if (SQLiteDatabase.hasCodec()) return;
 
         // is the corruption detected even before database could be 'opened'?
         if (!dbObj.isOpen()) {

@@ -1,8 +1,14 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: 'com.android.library'
 apply plugin: 'maven'
 
 android {
     compileSdkVersion 23
+
+    lintOptions {
+        abortOnError false
+    }
 
     defaultConfig {
         minSdkVersion 16
@@ -10,6 +16,7 @@ android {
         versionCode 4
         versionName "1.0.3"
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -17,26 +24,73 @@ android {
         }
     }
 
-    sourceSets.main.jni.srcDirs = [] //disable automatic ndk-build call
-
     sourceSets.main {
+        jni.srcDirs = [] // Disable automatic ndk-build call
         jniLibs.srcDir 'src/main/libs'
     }
+
+    def localProperties = new Properties()
+    localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def ndkBuild = ndkBuildCmd(localProperties)
+    def useBuiltinExtensions = localProperties.getProperty('useBuiltinExtensions', 'true') == 'true'
+    println "useBuiltinExtensions == ${useBuiltinExtensions}"
+
+    task buildSQLite3(type: Exec) {
+        workingDir file('src/main')
+        commandLine ndkBuild
+    }
+
+    task buildExtensions(type: Exec) {
+        workingDir file('../builtin_extensions')
+        commandLine ndkBuild
+    }
+
+    tasks.withType(JavaCompile) { task -> task.dependsOn buildSQLite3 }
+
+    if (useBuiltinExtensions) {
+        buildSQLite3.dependsOn buildExtensions
+        buildSQLite3.doLast {
+            println "COPY BUILTIN EXTENSION LIBS"
+            file("../builtin_extensions/libs/").eachDir { dir ->
+                copy {
+                    from dir.path
+                    into "src/main/libs/${dir.name}"
+                    include '*.so'
+                }
+            }
+        }
+    } else {
+        buildSQLite3.doLast {
+            println "CLEAR BUILTIN EXTENSION LIBS"
+            delete fileTree('src/main/libs') {
+                exclude '**/libsqliteX.so'
+            }
+        }
+    }
+
+    task cleanSQLite3(type: Exec) {
+        workingDir file('src/main')
+        commandLine ndkBuild, 'clean'
+    }
+
+    task cleanExtensions(type: Exec) {
+        workingDir file('../builtin_extensions')
+        commandLine ndkBuild, 'clean'
+    }
+
+    cleanSQLite3.dependsOn cleanExtensions
+    clean.dependsOn cleanSQLite3
+}
+
+static def ndkBuildCmd(Properties prop) {
+    if (System.env.ANDROID_NDK_ROOT != null) return System.env.ANDROID_NDK_ROOT
+    def ndkDir = prop.getProperty('ndk.dir', null)
+    if (ndkDir == null) throw new GradleException("NDK location not found.")
+    def ndkBuild = "${ndkDir}/ndk-build"
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) ndkBuild += ".cmd"
+    return ndkBuild
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.groupId = 'com.welearn'
-            pom.artifactId = 'sqlite3'
-            pom.version = android.defaultConfig.versionName
-            repository(url: 'http://nexus.dev.xdf100.com/repository/maven-releases/') {
-                authentication(userName: "admin", password: "Youlearn100")
-            }
-        }
-    }
 }
