@@ -49,6 +49,8 @@ All of the first, please make sure you have `NDK` installed, then add the follow
 ndk.dir=/your/ndk/directory
 ```
 
+The prebuilt icu libraries are placed in the directory `./sqlite3/src/main/jni/sqlite/icu_lib_[arch]`, please check [this project](https://github.com/NanoMichael/cross_compile_icu4c_for_android) to get more informations about how to cross-compile `icu4c`.
+
 ## Application programming
 
 Load the native library:
